@@ -35,4 +35,37 @@ class CuotaControllerIT {
 						.andExpect(jsonPath("$.plazoMeses").value(6))
 						.andExpect(jsonPath("$.cuotaMensual").value(870.17));
 	}
+
+	@Test
+	void endpointSimularSinInteresDebeRetornarCuotaLineal() throws Exception {
+		SolicitudPrestamo request = new SolicitudPrestamo(1200.0, 0.0, 12);
+
+		mockMvc.perform(post("/api/cuotas/simular")
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(objectMapper.writeValueAsString(request)))
+						.andExpect(status().isOk())
+						.andExpect(jsonPath("$.monto").value(1200.0))
+						.andExpect(jsonPath("$.plazoMeses").value(12))
+						.andExpect(jsonPath("$.cuotaMensual").value(100.0))
+						.andExpect(jsonPath("$.totalPagar").value(1200.0));
+	}
+
+	@Test
+	void endpointSimularConJsonInvalidoDebeRetornar400() throws Exception {
+		mockMvc.perform(post("/api/cuotas/simular")
+										.contentType(MediaType.APPLICATION_JSON)
+										.content("{\"monto\":}"))
+						.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void endpointSimularConParametrosInvalidosDebeRetornar400() throws Exception {
+		SolicitudPrestamo request = new SolicitudPrestamo(-500.0, 10.0, 12);
+
+		mockMvc.perform(post("/api/cuotas/simular")
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(objectMapper.writeValueAsString(request)))
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.error").value("Parámetros de préstamo inválidos"));
+	}
 }

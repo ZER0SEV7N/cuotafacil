@@ -6,6 +6,8 @@ import com.nttdata.cuotafacil.domain.port.in.SimularCuotaUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/cuotas")
 public class CuotaController {
@@ -19,5 +21,10 @@ public class CuotaController {
 	@PostMapping("/simular")
 	public ResponseEntity<SimulacionCuota> simular(@RequestBody SolicitudPrestamo solicitud) {
 		return ResponseEntity.ok(useCase.calcularSimulacion(solicitud));
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Map<String, String>> manejarParametrosInvalidos(IllegalArgumentException exception) {
+		return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
 	}
 }

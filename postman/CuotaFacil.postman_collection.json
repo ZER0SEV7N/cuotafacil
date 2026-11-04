@@ -1,0 +1,169 @@
+{
+  "info": {
+    "_postman_id": "d6a5a58e-bd4c-4c5c-8a74-2f4e3f0e2e4a",
+    "name": "CuotaFacil - Simulación de cuotas",
+    "description": "Pruebas del endpoint POST /api/cuotas/simular.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Simular préstamo con interés",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monto\": 10000,\n  \"tasaAnualPorcentaje\": 12,\n  \"plazoMeses\": 12\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cuotas/simular",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cuotas",
+            "simular"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Calcula la cuota mensual', function () {",
+              "    pm.expect(body.cuotaMensual).to.eql(888.49);",
+              "});",
+              "pm.test('Calcula el total a pagar', function () {",
+              "    pm.expect(body.totalPagar).to.eql(10661.88);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Simular préstamo sin interés",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monto\": 1200,\n  \"tasaAnualPorcentaje\": 0,\n  \"plazoMeses\": 12\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cuotas/simular",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cuotas",
+            "simular"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Divide el monto entre los meses', function () {",
+              "    pm.expect(body.cuotaMensual).to.eql(100);",
+              "});",
+              "pm.test('El total coincide con el monto', function () {",
+              "    pm.expect(body.totalPagar).to.eql(1200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar parámetros inválidos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"monto\": -500,\n  \"tasaAnualPorcentaje\": 10,\n  \"plazoMeses\": 12\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cuotas/simular",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "cuotas",
+            "simular"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('El servidor rechaza los parámetros inválidos', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Devuelve el motivo del rechazo', function () {",
+              "    pm.expect(pm.response.json().error).to.eql('Parámetros de préstamo inválidos');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
