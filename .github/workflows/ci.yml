@@ -21,11 +21,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configurar Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
+
+      - name: Habilitar Maven Wrapper
+        run: chmod +x mvnw
 
       - name: Verificar
         run: ./mvnw -B -ntp verify
